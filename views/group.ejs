@@ -1,0 +1,237 @@
+<%- include("layout/header") %>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script>
+        var $j = jQuery.noConflict();
+    </script>
+   
+</head>
+<body>
+    <h2 class="mb-4">Groups</h2>
+
+    <div class="container">
+       
+
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createGroupModel">
+   Create Group
+  </button>
+
+  <% if(typeof message !== "undefined"){ %>
+    <p style="color: green;"><%= message %></p>
+<% } %>
+
+
+
+<table class="table mt-4">
+    <thead>
+        <tr>
+            <th>S.No</th>
+            <th>Image</th>
+            <th>Name</th>
+            <th>Limit</th>
+            <th>Members</th>
+            <th>Action</th>
+        </tr>
+
+        <tbody>
+
+            <%
+             if(groups.length>0){
+                for(let i=0; i<groups.length; i++){
+                    %>
+                    <tr>
+                        <td><%= i+1 %></td>
+                        <td>
+                            <img src="<%= groups[i]['image'] %>" alt="" width="100px" height="100px">                 
+                               </td>
+                        <td>
+                            <%= groups[i]['name'] %>
+                        </td>
+                        <td>
+                            <%= groups[i]['limit'] %>
+                        </td>
+
+                        <td>
+                          <a
+                            class="cursor-pointer addMember"
+                            data-id="<%= groups[i]._id %>"
+                            data-limit="<%= groups[i].limit %>"
+                            data-toggle="modal"
+                            data-target="#memberModal"
+                          >
+                            Members
+                          </a>
+                        </td>
+                        <td>
+                          <a class="updateMember" data-obj="<%= JSON.stringify(groups[i]) %>" data-toggle="modal" data-target="#updateGroupModel">
+                            <i class="fa fa-pencil"></i>
+                          </a>
+                          <a class="deleteGroup" data-id="<%= groups[i]['_id'] %>" data-name="<%= groups[i]['name'] %>" data-toggle="modal" data-target="#deleteGroupModel">
+                            <i class="fa fa-trash"></i>
+                          </a>
+                          <a class="copy cursor-pointer" data-id="<%= groups[i]['_id'] %>">
+                            <i class="fa fa-copy"></i>
+                          </a>
+                        </td>
+                        
+                    </tr> 
+                    <%
+              
+                }
+             }
+            %>
+
+        </tbody>
+    </thead>
+  </table>
+
+<!-- Member Modal -->
+  <div class="modal fade" id="memberModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLongTitle">Members</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <form action="" id="add-member-form">
+            <div class="modal-body">
+          <input type="hidden" name="group_id" id="group_id" >
+          <input type="hidden" name="limit" id="limit" >
+
+          <table class="table">
+            <thead>
+                <tr>
+                    <th>Select</th>
+                    <th>Name</th>
+                </tr>
+            </thead>
+            <tbody >
+              <tr>
+                <td colspan="2">
+                  <div class="addMemberTable">
+                    <table class="table addMembersInTable">
+                      
+                    </table>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+        </table>
+            </div>
+            <div class="modal-footer">
+              <p id="add-member-error">
+                
+              </p>
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-primary">Update Member</button>
+            </div>
+          </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal fade" id="createGroupModel" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLongTitle">Create Group</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <form action="" method="post" enctype="multipart/form-data">
+            <div class="modal-body">
+              <input type="text" name="name" placeholder="Enter Group Name" required class="w-100 mb-2">
+              <input type="file" name="image" required class="w-100 mb-2">
+              <input type="number" min="1" placeholder="Enter User limit" name="limit" required class="w-100 mb-2">
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-primary">Create</button>
+            </div>
+          </form>
+      </div>
+    </div>
+  </div>
+
+
+
+
+
+<!-- Update Modal -->
+  <div class="modal fade" id="updateGroupModel" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLongTitle">Update Group</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <form action="" method="post" enctype="multipart/form-data" id="updateChatGroupForm">
+            <div class="modal-body">
+
+              <input type="hidden" name="id" id="update_group_id">
+              <input type="hidden" name="last_limit" id="last_limit">
+              <input type="text" name="name" id="group_name" placeholder="Enter Group Name" required class="w-100 mb-2">
+              <input type="file" name="image" class="w-100 mb-2">
+              <input type="number" min="1" id="group_limit" placeholder="Enter User limit" name="limit" required class="w-100 mb-2">
+
+              <p><b>(Note)</b>If you enter the limit less than to previous limit we will remove the all users from your Group</p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-warning">Update</button>
+            </div>
+          </form>
+      </div>
+    </div>
+  </div>
+
+
+
+
+  <!-- Delete Modal -->
+  <div class="modal fade" id="deleteGroupModel" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLongTitle">Delete Group</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <form  method="post" id="deleteChatGroupForm">
+            <div class="modal-body">
+
+              <input type="hidden" name="id" id="delete_group_id">
+
+              <p>Are You sure want to delete <b id="delete_group_name"></b>Group?</p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-danger">Delete</button>
+            </div>
+          </form>
+      </div>
+    </div>
+  </div>
+      
+</div>
+
+
+
+
+</body>
+</html>
+
+<%- include("layout/footer") %>
