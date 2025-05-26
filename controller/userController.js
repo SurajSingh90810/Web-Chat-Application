@@ -1,6 +1,5 @@
 const User = require("../models/userModel");
 const bcrypt = require("bcrypt");
-const session = require("express-session");
 const chatModel = require("../models/chatModel");
 const Group = require("../models/groupModel");
 const Member = require("../models/memberModel");

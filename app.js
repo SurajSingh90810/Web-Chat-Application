@@ -15,7 +15,7 @@ app.set("views", "./views");
 
 const cookieParser=require("cookie-parser")
 
-
+   
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));

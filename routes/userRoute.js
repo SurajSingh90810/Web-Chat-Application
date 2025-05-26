@@ -48,7 +48,7 @@ user_route.post(
 user_route.post("/delete-chat-group", userController.deleteChatGroup);
 user_route.get("/share-group/:id",userController.shareGroup)
 user_route.post("/join-group",userController.joinGroup)
-user_route.get("/group-chat",userController.groupChats)
+user_route.get("/group-chat",auth.isLogin,userController.groupChats)
 user_route.post("/group-chat-save",userController.saveGroupChat)
 
 user_route.post("/load-group-chats", userController.loadGroupChats)
