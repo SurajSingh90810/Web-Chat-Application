@@ -1,5 +1,5 @@
 require("dotenv").config();
-const path=require("path")
+const path = require("path");
 const mongoose = require("mongoose");
 mongoose.connect(
   "mongodb+srv://singhsuraj90810:suraj123@cluster0.eivpzhl.mongodb.net/chatApp"
@@ -13,19 +13,18 @@ const io = require("socket.io")(http);
 app.set("view engine", "ejs");
 app.set("views", "./views");
 
-const cookieParser=require("cookie-parser")
+const cookieParser = require("cookie-parser");
 
-   
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, "public")));
 
 const userRoute = require("./routes/userRoute");
 const User = require("./models/userModel");
 const Chat = require("./models/chatModel");
 
 app.use("/", userRoute);
-app.use(cookieParser())
+app.use(cookieParser());
 
 let usp = io.of("/user-namespace");
 
@@ -63,19 +62,22 @@ usp.on("connection", async function (socket) {
     socket.emit("loadChats", { chats: chats });
   });
 
-  socket.on("chatDeleted",function(id){
-    socket.broadcast.emit("chatMessageDeleted",id)
-  })
+  socket.on("chatDeleted", function (id) {
+    socket.broadcast.emit("chatMessageDeleted", id);
+  });
 
-  socket.on("chatUpdated",function(data){
-    socket.broadcast.emit("chatMessageUpdated",data)
-  })
+  socket.on("chatUpdated", function (data) {
+    socket.broadcast.emit("chatMessageUpdated", data);
+  });
 
-  socket.on("newGroupChat",function(data){
-    socket.broadcast.emit("loadNewGroupChat",data)
-  })
+  socket.on("newGroupChat", function (data) {
+    socket.broadcast.emit("loadNewGroupChat", data);
+  });
+
+  socket.on("groupChatDeleted", function (id) {
+    socket.broadcast.emit("groupChatMessageDeleted", id);
+  });
 });
-
 
 http.listen(3000, () => {
   console.log("Server is running on port 3000");

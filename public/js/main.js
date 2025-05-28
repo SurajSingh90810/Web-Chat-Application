@@ -16,7 +16,9 @@
   function getCookie(name) {
     let matches = document.cookie.match(
       new RegExp(
-        "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, "\\$1") + "=([^;]*)"
+        "(?:^|; )" +
+          name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, "\\$1") +
+          "=([^;]*)"
       )
     );
     return matches ? decodeURIComponent(matches[1]) : undefined;
@@ -38,11 +40,10 @@
     }
   }
   function scrollGroupChat() {
-    const container = $('#group-chat-container')[0];
+    const container = $("#group-chat-container")[0];
     container.scrollTop = container.scrollHeight;
   }
 
-  
   $(document).ready(function () {
     $(".user-list").click(function () {
       var userId = $(this).attr("data-id");
@@ -126,7 +127,10 @@
     let html = "";
 
     for (let x = 0; x < chats.length; x++) {
-      let addClass = chats[x]["sender_id"] == sender_id ? "current-user-chat" : "distance-user-chat";
+      let addClass =
+        chats[x]["sender_id"] == sender_id
+          ? "current-user-chat"
+          : "distance-user-chat";
 
       html += `
         <div class="${addClass}" id="${chats[x]["_id"]}">
@@ -145,8 +149,6 @@
     $("#chat-container").append(html);
     scrollChat();
   });
-
-
 
   $(document).on("click", ".fa-trash", function () {
     let msg = $(this).parent().text();
@@ -197,8 +199,12 @@
       data: { id: id, message: msg },
       success: function (res) {
         if (res.success === true) {
-          $("#" + id).find("span").text(msg);
-          $("#" + id).find(".fa-edit").attr("data-msg", msg);
+          $("#" + id)
+            .find("span")
+            .text(msg);
+          $("#" + id)
+            .find(".fa-edit")
+            .attr("data-msg", msg);
           $("#editChatModal").modal("hide");
           socket.emit("chatUpdated", { id: id, message: msg });
         } else {
@@ -209,7 +215,9 @@
   });
 
   socket.on("chatMessageUpdated", function (data) {
-    $("#" + data.id).find("span").text(data.message);
+    $("#" + data.id)
+      .find("span")
+      .text(data.message);
   });
 
   $(".addMember").click(function () {
@@ -229,7 +237,9 @@
           res.data.forEach((user) => {
             let isMember = user.member && user.member.length > 0;
             html += `<tr>
-              <td><input type="checkbox" ${isMember ? "checked" : ""} name="members[]" value="${user._id}" /></td>
+              <td><input type="checkbox" ${
+                isMember ? "checked" : ""
+              } name="members[]" value="${user._id}" /></td>
               <td>${user.name || "No Name"}</td>
             </tr>`;
           });
@@ -343,7 +353,6 @@
       success: function (res) {
         if (res.success) {
           location.reload();
-          
         } else {
           $(this).text("Join Now");
           $(this).removeAttr("disabled");
@@ -352,19 +361,12 @@
     });
   });
 
-
-
-
-  $(".group-list").click(function(){
-    $(".group-start-head").hide()
-    $(".group-chat-section").show()
-    global_group_id=$(this).attr('data-id')
-    loadGroupChats()
-
-  })
-
-
-
+  $(".group-list").click(function () {
+    $(".group-start-head").hide();
+    $(".group-chat-section").show();
+    global_group_id = $(this).attr("data-id");
+    loadGroupChats();
+  });
 
   $("#group-chat-form").submit(function (event) {
     event.preventDefault();
@@ -378,74 +380,113 @@
         group_id: global_group_id,
         message: message,
       },
-      success: function(response) {
+      success: function (response) {
         if (response.success) {
-            $('#group-message').val('');
-            let message = response.chat.message;
-            let html = `
+          $("#group-message").val("");
+          let message = response.chat.message;
+          let html = `
             <div class="current-user-chat" id='${response.chat._id}'>
                 <h5>
                     <span>${message}</span>
-                  <i class="fa fa-trash" aria-hidden="true" data-id="${response.chat._id}" data-toggle="modal" data-target="#deleteGroupChatModal"></i>
+                  <i class="fa fa-trash deleteGroupChat" aria-hidden="true" data-id="${response.chat._id}" data-toggle="modal" data-target="#deleteGroupChatModal"></i>
 
                 </h5>
             </div>
             `;
-            $('#group-chat-container').append(html);
-            socket.emit('newGroupChat', response.chat);
-            scrollGroupChat();
+          $("#group-chat-container").append(html);
+          socket.emit("newGroupChat", response.chat);
+          scrollGroupChat();
         }
-    },    
+      },
     });
   });
 
-  socket.on('loadNewGroupChat', function(data) {
+  socket.on("loadNewGroupChat", function (data) {
     if (global_group_id == data.group_id) {
-        let html = `
+      let html = `
         <div class="distance-user-chat" id='${data._id}'>
             <h5>
                 <span>${data.message}</span>
             </h5>
         </div>
         `;
-        $('#group-chat-container').append(html);
-        scrollGroupChat();
+      $("#group-chat-container").append(html);
+      scrollGroupChat();
     }
-});
+  });
 
-function loadGroupChats() {
-  $.ajax({
-    url: "/load-group-chats",
-    type: "POST",
-    data: { group_id: global_group_id },
-    success: function(res) {
-      if (res.success) {
-        var chats = res.chats;
-        var html = '';
-        
-        $('#group-chat-container').html('');
-        
-        for (let i = 0; i < chats.length; i++) {
-          let className='distance-user-chat';
+  function loadGroupChats() {
+    $.ajax({
+      url: "/load-group-chats",
+      type: "POST",
+      data: { group_id: global_group_id },
+      success: function (res) {
+        if (res.success) {
+          var chats = res.chats;
+          var html = "";
 
-          if(chats[i][sender_id]==sender_id){
-            className='current-user-chat'
-          }
+          $("#group-chat-container").html("");
 
-          
-          html += `
-            <div class="${className}" id="${chats[i]['_id']}">
+          for (let i = 0; i < chats.length; i++) {
+            let className = "distance-user-chat";
+
+            if (chats[i][sender_id] == sender_id) {
+              className = "current-user-chat";
+            }
+
+            html += `
+            <div class="${className}" id="${chats[i]["_id"]}">
               <h5>
-                <span>${chats[i]['message']}</span>
+                <span>${chats[i]["message"]}</span>`;
+
+            if (chats[i][sender_id] == sender_id) {
+              html += `  <i class="fa fa-trash deleteGroupChat" aria-hidden="true" 
+                data-id="${chats[i]["_id"]}" 
+                data-toggle="modal" data-target="#deleteGroupChatModal"></i>`;
+            }
+
+            html += ` 
               </h5>
             </div>
           `;
+          }
+
+          $("#group-chat-container").html(html);
+          scrollGroupChat();
         }
-        
-        $('#group-chat-container').html(html);
-        scrollGroupChat();
-      }
-    }
+      },
+    });
+  }
+
+  $(document).on("click", ".deleteGroupChat", function () {
+    var msg = $(this).parent().find("span").text();
+
+    $("#delete-group-message").text(msg);
+    $("#delete-group-message-id").val($(this).attr("data-id"));
   });
-}
+
+  $("#delete-group-chat-form").submit(function (e) {
+    e.preventDefault();
+
+    var id = $("#delete-group-message-id").val();
+
+    $.ajax({
+      url: "/delete-group-chat",
+      type: "POST",
+      data: { id: id },
+      success: function (res) {
+        if (res.success) {
+          $("#" + id).remove();
+          $("#deleteGroupChatModal").modal("hide");
+          socket.emit("groupChatDeleted", id);
+        } else {
+          alert(res.msg);
+        }
+      },
+    });
+  });
+
+  socket.on("groupChatMessageDeleted", function (id) {
+    $("#" + id).remove();
+  });
 })(jQuery);

@@ -3,7 +3,7 @@ const bcrypt = require("bcrypt");
 const chatModel = require("../models/chatModel");
 const Group = require("../models/groupModel");
 const Member = require("../models/memberModel");
-const GroupChat=require("../models/groupChatModel")
+const GroupChat = require("../models/groupChatModel");
 const mongoose = require("mongoose");
 
 const registerLoad = (req, res) => {
@@ -164,30 +164,36 @@ const getMembers = async (req, res) => {
 
     const { group_id } = req.body;
     if (!group_id) {
-      return res.status(400).json({ success: false, message: "group_id is required" });
+      return res
+        .status(400)
+        .json({ success: false, message: "group_id is required" });
     }
 
     console.log("Group ID received:", group_id);
 
     const groupMembers = await Member.find({ group_id }).select("user_id -_id");
 
-    const allUsers = await User.find({ _id: { $ne: req.session.user._id } }).select("name _id");
+    const allUsers = await User.find({
+      _id: { $ne: req.session.user._id },
+    }).select("name _id");
 
     const usersWithMembership = allUsers.map((user) => ({
       ...user.toObject(),
-      member: groupMembers.some((m) => m.user_id?.toString() === user._id.toString())
+      member: groupMembers.some(
+        (m) => m.user_id?.toString() === user._id.toString()
+      )
         ? [{ _id: user._id }]
         : [],
     }));
 
     return res.status(200).json({ success: true, data: usersWithMembership });
-
   } catch (error) {
     console.error("Error in /get-members:", error);
-    return res.status(500).json({ success: false, message: "Error fetching members" });
+    return res
+      .status(500)
+      .json({ success: false, message: "Error fetching members" });
   }
 };
-
 
 const addMembers = async (req, res) => {
   try {
@@ -270,25 +276,33 @@ const shareGroup = async (req, res) => {
     const groupData = await Group.findOne({ _id: req.params.id });
 
     if (!groupData) {
-      return res.render('error', { message: '404 not found!' });
+      return res.render("error", { message: "404 not found!" });
     }
 
     if (!req.session.user) {
-      return res.render('error', { message: 'You need to login to access the Share URL!' });
+      return res.render("error", {
+        message: "You need to login to access the Share URL!",
+      });
     }
 
-    const totalMembers = await Member.countDocuments({ group_id: req.params.id });
+    const totalMembers = await Member.countDocuments({
+      group_id: req.params.id,
+    });
     const available = groupData.limit - totalMembers;
 
-    const isOwner = String(groupData.creator_id) === String(req.session.user._id);
-    const isJoined = await Member.countDocuments({ group_id: req.params.id, user_id: req.session.user._id });
+    const isOwner =
+      String(groupData.creator_id) === String(req.session.user._id);
+    const isJoined = await Member.countDocuments({
+      group_id: req.params.id,
+      user_id: req.session.user._id,
+    });
 
-    res.render('shareLink', {
+    res.render("shareLink", {
       group: groupData,
       totalMembers: totalMembers,
       isOwner: isOwner,
       isJoined: isJoined,
-      available
+      available,
     });
   } catch (error) {
     res.status(400).send({ success: false, message: error.message });
@@ -297,44 +311,51 @@ const shareGroup = async (req, res) => {
 
 const joinGroup = async (req, res) => {
   try {
-      const member = new Member({
-          group_id: req.body.group_id,
-          user_id: req.session.user._id
-      });
-      await member.save();
-      res.send({ success: true, msg: 'Congratulation, you have Joined the Group Successfully!' });
+    const member = new Member({
+      group_id: req.body.group_id,
+      user_id: req.session.user._id,
+    });
+    await member.save();
+    res.send({
+      success: true,
+      msg: "Congratulation, you have Joined the Group Successfully!",
+    });
   } catch (error) {
-      res.send({ success: false, msg: error.message });
+    res.send({ success: false, msg: error.message });
   }
-}
+};
 
 const groupChats = async (req, res) => {
   try {
     const myGroups = await Group.find({ creator_id: req.session.user._id });
-    const joinedGroups = await Member.find({ user_id: req.session.user._id }).populate('group_id');
+    const joinedGroups = await Member.find({
+      user_id: req.session.user._id,
+    }).populate("group_id");
 
-    res.render('chat-group', { myGroups: myGroups, joinedGroups: joinedGroups });
+    res.render("chat-group", {
+      myGroups: myGroups,
+      joinedGroups: joinedGroups,
+    });
   } catch (error) {
     console.log(error.message);
   }
 };
 
-const saveGroupChat =async(req,res)=>{
+const saveGroupChat = async (req, res) => {
   try {
     var chat = new GroupChat({
       sender_id: req.body.sender_id,
       group_id: req.body.group_id,
-      message: req.body.message
-  });
-  
-  var newChat = await chat.save();
-  
-  res.send({ success: true, chat: newChat });   
+      message: req.body.message,
+    });
 
+    var newChat = await chat.save();
+
+    res.send({ success: true, chat: newChat });
   } catch (error) {
-    res.send({ success: false, msg: error.message });  }
-}
-
+    res.send({ success: false, msg: error.message });
+  }
+};
 
 const loadGroupChats = async (req, res) => {
   try {
@@ -346,14 +367,24 @@ const loadGroupChats = async (req, res) => {
   }
 };
 
+const deleteGroupChats = async (req, res) => {
+  try {
+    await GroupChat.deleteOne({ _id: req.body.id });
+
+    res.send({ success: true, msg: "Caht Deleted" });
+  } catch (error) {
+    res.send({ success: false, msg: error.message });
+  }
+};
 
 module.exports = {
+  deleteGroupChats,
   register,
   registerLoad,
   login,
   loadLogin,
   loadDashboard,
-  logout, 
+  logout,
   saveChat,
   deleteChat,
   updateChat,
@@ -367,7 +398,5 @@ module.exports = {
   joinGroup,
   groupChats,
   saveGroupChat,
-  loadGroupChats
-  
-
+  loadGroupChats,
 };
