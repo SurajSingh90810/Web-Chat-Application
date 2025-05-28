@@ -377,6 +377,15 @@ const deleteGroupChats = async (req, res) => {
   }
 };
 
+const updateGroupChats = async (req, res) => {
+  try {
+    await GroupChat.findByIdAndUpdate({ _id: req.body.id },{$set:{message:req.body.message}});
+
+    res.send({ success: true, msg: "Caht Updated" });
+  } catch (error) {
+    res.send({ success: false, msg: error.message });
+  }
+};
 module.exports = {
   deleteGroupChats,
   register,
@@ -399,4 +408,5 @@ module.exports = {
   groupChats,
   saveGroupChat,
   loadGroupChats,
+  updateGroupChats
 };

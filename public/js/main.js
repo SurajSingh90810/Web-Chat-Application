@@ -389,6 +389,7 @@
                 <h5>
                     <span>${message}</span>
                   <i class="fa fa-trash deleteGroupChat" aria-hidden="true" data-id="${response.chat._id}" data-toggle="modal" data-target="#deleteGroupChatModal"></i>
+                  <i class="fa fa-edit editGroupChat" aria-hidden="true" data-id="${response.chat._id}" data-msg="${message}" data-toggle="modal" data-target="#editGroupChatModal"></i>
 
                 </h5>
             </div>
@@ -442,7 +443,12 @@
             if (chats[i][sender_id] == sender_id) {
               html += `  <i class="fa fa-trash deleteGroupChat" aria-hidden="true" 
                 data-id="${chats[i]["_id"]}" 
-                data-toggle="modal" data-target="#deleteGroupChatModal"></i>`;
+                data-toggle="modal" data-target="#deleteGroupChatModal"></i>
+
+
+                  <i class="fa fa-edit editGroupChat" aria-hidden="true" data-id="${chats[i]["_id"]}" data-msg="${chats[i]["message"]}" data-toggle="modal" data-target="#editGroupChatModal"></i>
+
+                `;
             }
 
             html += ` 
@@ -488,5 +494,54 @@
 
   socket.on("groupChatMessageDeleted", function (id) {
     $("#" + id).remove();
+  });
+
+
+
+
+
+  //  Update Group Chat
+
+    $(document).on("click", ".editGroupChat", function () {
+
+    $("#edit-group-message-id").val($(this).attr("data-id"));
+    $("#update-group-message").val($(this).attr("data-msg"));
+  });
+
+  $("#update-group-chat-form").submit(function (e) {
+    e.preventDefault();
+
+   var id= $("#edit-group-message-id").val();
+   var msg= $("#update-group-message").val();
+
+
+    $.ajax({
+      url: "/update-group-chat",
+      type: "POST",
+      data: { id: id,message: msg },
+      success: function (res) {
+        if (res.success) {
+          $("#editGroupChatModal").modal("hide");
+          $("#" + id)
+            .find("span")
+            .text(msg);
+
+              $("#" + id)
+            .find("editGroupChat")
+            .attr("data-msg", msg);
+            socket.emit("groupChatUpdated", { id: id, message: msg });
+        } else {
+          alert(res.msg);
+        }
+      },
+    });
+  });
+
+  socket.on("groupChatMessageUpdated", function (data) {
+   $("#" + data.id)
+            .find("span")
+            .text(data.message);
+
+            
   });
 })(jQuery);

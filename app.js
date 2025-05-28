@@ -77,6 +77,11 @@ usp.on("connection", async function (socket) {
   socket.on("groupChatDeleted", function (id) {
     socket.broadcast.emit("groupChatMessageDeleted", id);
   });
+
+
+    socket.on("groupChatUpdated", function (data) {
+    socket.broadcast.emit("groupChatMessageUpdated", data);
+  });
 });
 
 http.listen(3000, () => {

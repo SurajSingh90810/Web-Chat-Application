@@ -53,5 +53,5 @@ user_route.post("/group-chat-save", userController.saveGroupChat);
 
 user_route.post("/load-group-chats", userController.loadGroupChats);
 user_route.post("/delete-group-chat", userController.deleteGroupChats);
-
+user_route.post("/update-group-chat", userController.updateGroupChats);
 module.exports = user_route;
