@@ -8401,3 +8401,22 @@ a[data-toggle="collapse"] {
     .group-chat-section {
       display: none;
   }
+
+    .user-list.active {
+        background-color: #007bff; 
+        color: white;
+    }
+    .cursor-pointer {
+        cursor: pointer;
+    }
+
+        .group-list.active {
+        background-color: #007bff; 
+        color: white;
+    }
+    .group-list.active img {
+        border: 2px solid white;
+    }
+    .cursor-pointer {
+        cursor: pointer;
+    }

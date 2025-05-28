@@ -113,7 +113,34 @@
       </div>
     </div>
   </div>
+<script>
+    // Using jQuery
+    $(document).ready(function() {
+        // Handle click on group list items
+        $('.group-list').click(function() {
+            // Remove active class from all group list items
+            $('.group-list').removeClass('active');
+            // Add active class to clicked item
+            $(this).addClass('active');
+            
+            // You can add your group chat initialization code here
+            const groupId = $(this).data('id');
+            // loadGroupChat(groupId); // Uncomment and implement this if needed
+        });
 
+        // Optional: If you want to maintain the active state after page refresh
+        // You can store the selected group ID in localStorage
+        $('.group-list').click(function() {
+            localStorage.setItem('lastActiveGroup', $(this).data('id'));
+        });
+
+        // On page load, check if there was an active group
+        const lastActiveGroup = localStorage.getItem('lastActiveGroup');
+        if (lastActiveGroup) {
+            $(`.group-list[data-id="${lastActiveGroup}"]`).addClass('active');
+        }
+    });
+</script>
 
 </body>
 </html>

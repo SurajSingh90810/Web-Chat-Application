@@ -100,7 +100,16 @@
 
    
 
+<script>
+    $(document).ready(function() {
+        $('.user-list').click(function() {
+            $('.user-list').removeClass('active');
+            $(this).addClass('active');
+            const userId = $(this).data('id');
+        });
+    });
 
+</script>
 </body>
 </html>
 
